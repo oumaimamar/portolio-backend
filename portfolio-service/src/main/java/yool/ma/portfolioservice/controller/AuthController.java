@@ -8,7 +8,7 @@ import yool.ma.portfolioservice.dto.MessageResponse;
 import yool.ma.portfolioservice.dto.auth.JwtResponse;
 import yool.ma.portfolioservice.dto.auth.LoginRequest;
 import yool.ma.portfolioservice.dto.auth.RegisterRequest;
-import yool.ma.portfolioservice.security.AuthService;
+import yool.ma.portfolioservice.security.service.AuthService;
 
 @CrossOrigin(origins = "*", maxAge = 3600)
 @RestController

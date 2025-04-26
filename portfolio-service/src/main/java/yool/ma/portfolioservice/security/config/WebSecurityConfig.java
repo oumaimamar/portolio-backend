@@ -63,6 +63,20 @@ public class WebSecurityConfig {
                         auth.requestMatchers("/api/auth/**").permitAll()
                                 .requestMatchers("/api/test/all").permitAll()
                                 .requestMatchers("/h2-console/**").permitAll()
+                                .requestMatchers("/api/profiles/**").permitAll()
+                                .requestMatchers("/api/certifications/**").permitAll()
+                                .requestMatchers("/api/certifications/profile/**").permitAll()
+                                .requestMatchers("/api/projects/**").permitAll()
+                                .requestMatchers("/api/projects/profile/**").permitAll()
+                                .requestMatchers("/api/projects/**").permitAll()
+                                .requestMatchers("/api/feedback/project/**").permitAll()
+                                .requestMatchers("/api/feedback/reviewer/**").permitAll()
+                                .requestMatchers("/api/feedback/**").permitAll()
+
+                                .requestMatchers("/uploads/**").permitAll()
+
+
+
                                 // Swagger UI
                                 .requestMatchers("/swagger-ui/**", "/v3/api-docs/**", "/swagger-ui.html").permitAll()
 
