@@ -26,9 +26,12 @@ import lombok.NoArgsConstructor;
     private String name;
 
     @Enumerated(EnumType.STRING)
-    private SkillLevel level;
+    private MediaType mediaType;
+
+    //---------Add
+    private String filePath;
+    private String description;
 
     private String category; // e.g., "Programming", "Database", "DevOps"
-    private int yearsOfExperience;
     private boolean verified;
 }

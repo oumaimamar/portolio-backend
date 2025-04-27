@@ -26,7 +26,7 @@ public class UserMediaService {
                 .orElseThrow(() -> new RuntimeException("Profile not found with id: " + profileId));
 
         if (userMediaRepository.existsByNameAndProfileId(request.getName(), profileId)) {
-            throw new RuntimeException("Tech skill already exists for this profile");
+            throw new RuntimeException("Document already exists for this profile");
         }
 
         UserMedia userMedia = new UserMedia();
@@ -47,7 +47,7 @@ public class UserMediaService {
     @Transactional
     public UserMediaResponse updateUserMedia(Long id, UserMediaRequest request) {
         UserMedia userMedia = userMediaRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Tech skill not found with id: " + id));
+                .orElseThrow(() -> new RuntimeException("Document not found with id: " + id));
 
         mapRequestToUserMedia(request, userMedia);
         UserMedia updatedUserMedia = userMediaRepository.save(userMedia);
@@ -56,7 +56,7 @@ public class UserMediaService {
 
     public void deleteUserMedia(Long id) {
         if (!userMediaRepository.existsById(id)) {
-            throw new RuntimeException("Tech skill not found with id: " + id);
+            throw new RuntimeException("Document not found with id: " + id);
         }
         userMediaRepository.deleteById(id);
     }
@@ -65,18 +65,20 @@ public class UserMediaService {
         UserMediaResponse response = new UserMediaResponse();
         response.setId(userMedia.getId());
         response.setName(userMedia.getName());
-        response.setLevel(userMedia.getLevel());
+        response.setMediaType(userMedia.getMediaType());
+        response.setFilePath(userMedia.getFilePath());
+        response.setDescription(userMedia.getDescription());
         response.setCategory(userMedia.getCategory());
-        response.setYearsOfExperience(userMedia.getYearsOfExperience());
         response.setVerified(userMedia.isVerified());
         return response;
     }
 
     private void mapRequestToUserMedia(UserMediaRequest request, UserMedia userMedia) {
         userMedia.setName(request.getName());
-        userMedia.setLevel(request.getLevel());
+        userMedia.setMediaType(request.getMediaType());
+        userMedia.setFilePath(request.getFilePath());
+        userMedia.setDescription(request.getDescription());
         userMedia.setCategory(request.getCategory());
-        userMedia.setYearsOfExperience(request.getYearsOfExperience());
         userMedia.setVerified(request.isVerified());
     }
 }

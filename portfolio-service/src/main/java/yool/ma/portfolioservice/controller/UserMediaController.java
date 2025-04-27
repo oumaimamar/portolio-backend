@@ -36,20 +36,20 @@ public class UserMediaController {
         return ResponseEntity.ok(responses);
     }
 
-    @PutMapping("/{techSkillId}")
+    @PutMapping("/{userMediaId}")
     public ResponseEntity<UserMediaResponse> updateUserMedia(
             @PathVariable Long profileId,
-            @PathVariable Long techSkillId,
+            @PathVariable Long userMediaId,
             @RequestBody UserMediaRequest request) {
-        UserMediaResponse response = userMediaService.updateUserMedia(techSkillId, request);
+        UserMediaResponse response = userMediaService.updateUserMedia(userMediaId, request);
         return ResponseEntity.ok(response);
     }
 
-    @DeleteMapping("/{techSkillId}")
+    @DeleteMapping("/{userMediaId}")
     public ResponseEntity<Void> deleteUserMedia(
             @PathVariable Long profileId,
-            @PathVariable Long techSkillId) {
-        userMediaService.deleteUserMedia(techSkillId);
+            @PathVariable Long userMediaId) {
+        userMediaService.deleteUserMedia(userMediaId);
         return ResponseEntity.noContent().build();
     }
 }

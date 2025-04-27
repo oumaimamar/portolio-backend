@@ -10,8 +10,11 @@ import java.time.LocalDateTime;
 public class UserMediaResponse {
     private Long id;
     private String name;
-    private SkillLevel level;
+    private MediaType mediaType;
+
+    private String filePath;
+    private String description;
+
     private String category;
-    private int yearsOfExperience;
     private boolean verified;
 }
