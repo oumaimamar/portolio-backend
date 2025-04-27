@@ -79,6 +79,12 @@ public class WebSecurityConfig {
                                 .requestMatchers("/api/project-media/**").permitAll() // Allow downloading files without authentication
 
 
+                                .requestMatchers("/api/user-media/upload/**").permitAll() // Allow downloading files without authentication
+                                .requestMatchers("/api/user-media/user/**").permitAll() // Allow downloading files without authentication
+
+                                .requestMatchers("/api/user-media/download/**").permitAll() // Allow downloading files without authentication
+                                .requestMatchers("/api/users/**").authenticated() // Require authentication for other user-media endpoints
+
 
 
                                 // Swagger UI
