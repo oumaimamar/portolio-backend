@@ -1,11 +1,13 @@
 package yool.ma.portfolioservice.model;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDateTime;
 
 
 @Entity
@@ -21,10 +23,21 @@ public class ProjectMedia {
 
     @ManyToOne
     @JoinColumn(name = "project_id")
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private Project project;
 
     private String fileName;
     private String filePath;
-    private String fileType;
+    private String fileType;  // Store mime type (e.g., image/jpeg, application/pdf)
     private long fileSize;
+
+    @Enumerated(EnumType.STRING)
+    private MediaType mediaType;  // Higher-level type category
+
+    private LocalDateTime uploadDate;
+
+    @PrePersist
+    protected void onCreate() {
+        uploadDate = LocalDateTime.now();
+    }
 }

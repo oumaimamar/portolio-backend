@@ -1,88 +1,139 @@
 package yool.ma.portfolioservice.security.service;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
+import org.springframework.web.multipart.MultipartFile;
 import yool.ma.portfolioservice.dto.ProjectMediaRequest;
 import yool.ma.portfolioservice.dto.ProjectMediaResponse;
+import yool.ma.portfolioservice.model.MediaType;
 import yool.ma.portfolioservice.model.Project;
 import yool.ma.portfolioservice.model.ProjectMedia;
 import yool.ma.portfolioservice.repository.ProjectMediaRepository;
 import yool.ma.portfolioservice.repository.ProjectRepository;
+import yool.ma.portfolioservice.security.exception.FileStorageException;
+import yool.ma.portfolioservice.security.exception.ResourceNotFoundException;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
-@RequiredArgsConstructor
+@Slf4j
 public class ProjectMediaService {
 
-    private final ProjectMediaRepository projectMediaRepository;
-    private final ProjectRepository projectRepository;
+    @Autowired
+    private ProjectMediaRepository projectMediaRepository;
 
-    // Create a new project media
-    public ProjectMediaResponse createProjectMedia(Long projectId, ProjectMediaRequest request) {
-        Project project = projectRepository.findById(projectId)
-                .orElseThrow(() -> new RuntimeException("Project not found with id: " + projectId));
+    @Autowired
+    private ProjectRepository projectRepository;
 
-        ProjectMedia projectMedia = new ProjectMedia();
-        mapRequestToProjectMedia(request, projectMedia);
-        projectMedia.setProject(project);
+    @Value("${file.upload-dir}")
+    private String uploadDir;
 
-        ProjectMedia savedProjectMedia = projectMediaRepository.save(projectMedia);
-        return mapToResponse(savedProjectMedia);
-    }
+    /**
+     * Add media to a project
+     */
+    public ProjectMedia addProjectMedia(Long projectId, MultipartFile file, MediaType mediaType) {
+        try {
+            Project project = projectRepository.findById(projectId)
+                    .orElseThrow(() -> new ResourceNotFoundException("Project not found with id: " + projectId));
 
-    // Get all media for a project
-    public List<ProjectMediaResponse> getAllMediaByProjectId(Long projectId) {
-        return projectMediaRepository.findByProjectId(projectId)
-                .stream()
-                .map(this::mapToResponse)
-                .collect(Collectors.toList());
-    }
+            // Create directory if it doesn't exist
+            String projectDirectory = uploadDir + File.separator + projectId;
+            File directory = new File(projectDirectory);
+            if (!directory.exists()) {
+                directory.mkdirs();
+            }
 
-    // Get media by ID
-    public ProjectMediaResponse getProjectMediaById(Long id) {
-        ProjectMedia projectMedia = projectMediaRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Project media not found with id: " + id));
-        return mapToResponse(projectMedia);
-    }
+            // Generate unique filename to avoid conflicts
+            String originalFilename = StringUtils.cleanPath(file.getOriginalFilename());
+            String fileName = System.currentTimeMillis() + "_" + originalFilename;
+            String filePath = projectDirectory + File.separator + fileName;
 
-    // Update media
-    @Transactional
-    public ProjectMediaResponse updateProjectMedia(Long id, ProjectMediaRequest request) {
-        ProjectMedia projectMedia = projectMediaRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Project media not found with id: " + id));
+            // Save file to disk
+            Path targetLocation = Paths.get(filePath);
+            Files.copy(file.getInputStream(), targetLocation, StandardCopyOption.REPLACE_EXISTING);
 
-        mapRequestToProjectMedia(request, projectMedia);
-        ProjectMedia updatedProjectMedia = projectMediaRepository.save(projectMedia);
-        return mapToResponse(updatedProjectMedia);
-    }
+            // Create and save media entity
+            ProjectMedia media = new ProjectMedia();
+            media.setProject(project);
+            media.setFileName(originalFilename);
+            media.setFilePath(filePath);
+            media.setFileType(file.getContentType());
+            media.setFileSize(file.getSize());
+            media.setMediaType(mediaType);
 
-    // Delete media
-    public void deleteProjectMedia(Long id) {
-        if (!projectMediaRepository.existsById(id)) {
-            throw new RuntimeException("Project media not found with id: " + id);
+            return projectMediaRepository.save(media);
+        } catch (IOException ex) {
+            log.error("Could not store file: {}", ex.getMessage());
+            throw new FileStorageException("Could not store file. Please try again!", ex);
         }
-        projectMediaRepository.deleteById(id);
     }
 
-    // Helper methods
-    private ProjectMediaResponse mapToResponse(ProjectMedia projectMedia) {
-        ProjectMediaResponse response = new ProjectMediaResponse();
-        response.setId(projectMedia.getId());
-        response.setProjectId(projectMedia.getProject().getId());
-        response.setFileName(projectMedia.getFileName());
-        response.setFilePath(projectMedia.getFilePath());
-        response.setFileType(projectMedia.getFileType());
-        response.setFileSize(projectMedia.getFileSize());
-        return response;
+    /**
+     * Get all media for a project
+     */
+    public List<ProjectMedia> getProjectMediaByProject(Long projectId) {
+        Project project = projectRepository.findById(projectId)
+                .orElseThrow(() -> new ResourceNotFoundException("Project not found with id: " + projectId));
+
+        return projectMediaRepository.findByProject(project);
     }
 
-    private void mapRequestToProjectMedia(ProjectMediaRequest request, ProjectMedia projectMedia) {
-        projectMedia.setFileName(request.getFileName());
-        projectMedia.setFilePath(request.getFilePath());
-        projectMedia.setFileType(request.getFileType());
-        projectMedia.setFileSize(request.getFileSize());
+    /**
+     * Get media by project and media type
+     */
+    public List<ProjectMedia> getProjectMediaByType(Long projectId, MediaType mediaType) {
+        Project project = projectRepository.findById(projectId)
+                .orElseThrow(() -> new ResourceNotFoundException("Project not found with id: " + projectId));
+
+        return projectMediaRepository.findByProjectAndMediaType(project, mediaType);
+    }
+
+    /**
+     * Get file content by media id
+     */
+    public byte[] getProjectMediaContent(Long mediaId) {
+        ProjectMedia media = projectMediaRepository.findById(mediaId)
+                .orElseThrow(() -> new ResourceNotFoundException("Media not found with id: " + mediaId));
+
+        try {
+            Path path = Paths.get(media.getFilePath());
+            return Files.readAllBytes(path);
+        } catch (IOException ex) {
+            log.error("Could not read file: {}", ex.getMessage());
+            throw new FileStorageException("Could not read file. Please try again!", ex);
+        }
+    }
+
+    /**
+     * Delete project media
+     */
+    public void deleteProjectMedia(Long mediaId) {
+        ProjectMedia media = projectMediaRepository.findById(mediaId)
+                .orElseThrow(() -> new ResourceNotFoundException("Media not found with id: " + mediaId));
+
+        try {
+            // Delete file from disk
+            Path path = Paths.get(media.getFilePath());
+            Files.deleteIfExists(path);
+
+            // Delete from database
+            projectMediaRepository.delete(media);
+        } catch (IOException ex) {
+            log.error("Could not delete file: {}", ex.getMessage());
+            throw new FileStorageException("Could not delete file. Please try again!", ex);
+        }
     }
 }

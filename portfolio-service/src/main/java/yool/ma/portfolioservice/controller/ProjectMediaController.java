@@ -1,7 +1,14 @@
 package yool.ma.portfolioservice.controller;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.ByteArrayResource;
+import org.springframework.core.io.Resource;
+import org.springframework.http.HttpHeaders;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.multipart.MultipartFile;
 import yool.ma.portfolioservice.dto.ProjectMediaRequest;
 import yool.ma.portfolioservice.dto.ProjectMediaResponse;
+import yool.ma.portfolioservice.model.ProjectMedia;
 import yool.ma.portfolioservice.security.service.ProjectMediaService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -10,51 +17,65 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-@CrossOrigin(origins = "*", maxAge = 3600)
 @RestController
-@RequestMapping("/api/projects/{projectId}/media")
-@RequiredArgsConstructor
+@RequestMapping("/api/project-media")
+@CrossOrigin(origins = "*", maxAge = 3600)
 public class ProjectMediaController {
 
-    private final ProjectMediaService projectMediaService;
+    @Autowired
+    private ProjectMediaService projectMediaService;
 
-    @PostMapping
-    public ResponseEntity<ProjectMediaResponse> createProjectMedia(
+    @PostMapping("/{projectId}/upload")
+//    @PreAuthorize("hasRole('APPRENANT') or hasRole('RESPONSABLE')")
+    public ResponseEntity<ProjectMedia> uploadFile(
             @PathVariable Long projectId,
-            @RequestBody ProjectMediaRequest request) {
-        ProjectMediaResponse response = projectMediaService.createProjectMedia(projectId, request);
-        return new ResponseEntity<>(response, HttpStatus.CREATED);
+            @RequestParam("file") MultipartFile file,
+            @RequestParam("mediaType")yool.ma.portfolioservice.model.MediaType mediaType) {
+
+        ProjectMedia media = projectMediaService.addProjectMedia(projectId, file, mediaType);
+        return ResponseEntity.ok(media);
     }
 
-    @GetMapping
-    public ResponseEntity<List<ProjectMediaResponse>> getAllMediaByProjectId(
-            @PathVariable Long projectId) {
-        List<ProjectMediaResponse> responses = projectMediaService.getAllMediaByProjectId(projectId);
-        return ResponseEntity.ok(responses);
+    @GetMapping("/{projectId}")
+    public ResponseEntity<List<ProjectMedia>> getProjectMedia(@PathVariable Long projectId) {
+        List<ProjectMedia> mediaList = projectMediaService.getProjectMediaByProject(projectId);
+        return ResponseEntity.ok(mediaList);
     }
 
-    @GetMapping("/{mediaId}")
-    public ResponseEntity<ProjectMediaResponse> getProjectMediaById(
+    @GetMapping("/{projectId}/type/{mediaType}")
+    public ResponseEntity<List<ProjectMedia>> getProjectMediaByType(
             @PathVariable Long projectId,
-            @PathVariable Long mediaId) {
-        ProjectMediaResponse response = projectMediaService.getProjectMediaById(mediaId);
-        return ResponseEntity.ok(response);
+            @PathVariable yool.ma.portfolioservice.model.MediaType mediaType) {
+
+        List<ProjectMedia> mediaList = projectMediaService.getProjectMediaByType(projectId, mediaType);
+        return ResponseEntity.ok(mediaList);
     }
 
-    @PutMapping("/{mediaId}")
-    public ResponseEntity<ProjectMediaResponse> updateProjectMedia(
-            @PathVariable Long projectId,
-            @PathVariable Long mediaId,
-            @RequestBody ProjectMediaRequest request) {
-        ProjectMediaResponse response = projectMediaService.updateProjectMedia(mediaId, request);
-        return ResponseEntity.ok(response);
+    @GetMapping("/download/{mediaId}")
+    public ResponseEntity<Resource> downloadFile(@PathVariable Long mediaId) {
+        ProjectMedia media = projectMediaService.getProjectMediaByProject(mediaId).stream()
+                .filter(m -> m.getId().equals(mediaId))
+                .findFirst()
+                .orElseThrow(() -> new IllegalArgumentException("Media not found"));
+
+        byte[] fileContent = projectMediaService.getProjectMediaContent(mediaId);
+
+        ByteArrayResource resource = new ByteArrayResource(fileContent);
+
+        return ResponseEntity.ok()
+                .contentType(org.springframework.http.MediaType.parseMediaType(media.getFileType()))
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + media.getFileName() + "\"")
+                .body(resource);
     }
 
     @DeleteMapping("/{mediaId}")
-    public ResponseEntity<Void> deleteProjectMedia(
-            @PathVariable Long projectId,
-            @PathVariable Long mediaId) {
+    public ResponseEntity<?> deleteMedia(@PathVariable Long mediaId) {
         projectMediaService.deleteProjectMedia(mediaId);
-        return ResponseEntity.noContent().build();
+        return ResponseEntity.ok().build();
+    }
+
+    @GetMapping("/media-types")
+    public ResponseEntity<yool.ma.portfolioservice.model.MediaType[]> getMediaTypes() {
+        return ResponseEntity.ok(yool.ma.portfolioservice.model.MediaType.values());
     }
 }
