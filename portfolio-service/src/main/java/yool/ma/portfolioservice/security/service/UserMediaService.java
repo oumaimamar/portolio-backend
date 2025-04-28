@@ -40,7 +40,8 @@ public class UserMediaService {
     /**
      * Add media to a project
      */
-    public UserMedia addProjectMedia(Long profileId, MultipartFile file, MediaType mediaType) {
+    public UserMedia addProjectMedia(Long profileId, MultipartFile file, MediaType mediaType,
+                                     String titre, String description, String category, boolean verified) {
         try {
             Profile profile = profileRepository.findById(profileId)
                     .orElseThrow(() -> new ResourceNotFoundException("Project not found with id: " + profileId));
@@ -68,6 +69,14 @@ public class UserMediaService {
             media.setFilePath(filePath);
             media.setFileType(file.getContentType());
             media.setFileSize(file.getSize());
+
+            // Set the new attributes
+            media.setTitre(titre);
+            media.setDescription(description);
+            media.setCategory(category);
+            media.setVerified(verified);
+
+
             media.setMediaType(mediaType);
 
             return userMediaRepository.save(media);

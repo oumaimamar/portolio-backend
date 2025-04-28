@@ -30,6 +30,12 @@ import java.time.LocalDateTime;
     private String fileType;  // Store mime type (e.g., image/jpeg, application/pdf)
     private long fileSize;
 
+    private String titre;
+    private String description;  // Added attribute for document description
+    private String category;     // Added attribute for organizing documents by category
+    private boolean verified;
+
+
     @Enumerated(EnumType.STRING)
     private MediaType mediaType;  // Higher-level type category
 

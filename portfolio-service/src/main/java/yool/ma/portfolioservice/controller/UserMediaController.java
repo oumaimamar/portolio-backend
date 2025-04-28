@@ -30,9 +30,13 @@ public class UserMediaController {
     public ResponseEntity<UserMedia> uploadFile(
             @PathVariable Long profileId,
             @RequestParam("file") MultipartFile file,
-            @RequestParam("mediaType")yool.ma.portfolioservice.model.MediaType mediaType) {
+            @RequestParam("mediaType")yool.ma.portfolioservice.model.MediaType mediaType,
+            @RequestParam("titre") String titre,
+            @RequestParam("description") String description,
+            @RequestParam("category") String category,
+            @RequestParam("verified") boolean verified) {
 
-        UserMedia media = userMediaService.addProjectMedia(profileId, file, mediaType);
+        UserMedia media = userMediaService.addProjectMedia(profileId, file, mediaType, titre, description, category, verified);
         return ResponseEntity.ok(media);
     }
 
