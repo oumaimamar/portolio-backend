@@ -78,6 +78,7 @@ public class WebSecurityConfig {
                                 .requestMatchers("/api/project-media/download/**").permitAll() // Allow downloading files without authentication
                                 .requestMatchers("/api/project-media/**").permitAll() // Allow downloading files without authentication
 
+                                .requestMatchers("/api/user-media/**").permitAll() // Allow downloading files without authentication
 
                                 .requestMatchers("/api/user-media/upload/**").permitAll() // Allow downloading files without authentication
                                 .requestMatchers("/api/user-media/user/**").permitAll() // Allow downloading files without authentication

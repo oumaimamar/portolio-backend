@@ -1,10 +1,12 @@
 package yool.ma.portfolioservice.model;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDateTime;
 
 
 @Entity
@@ -19,19 +21,22 @@ import lombok.NoArgsConstructor;
     private Long id;
 
     @ManyToOne
-    @JoinColumn(name = "profile_id")
+    @JoinColumn(name = "project_id")
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private Profile profile;
 
-    @Column(nullable = false)
-    private String name;
+    private String fileName;
+    private String filePath;
+    private String fileType;  // Store mime type (e.g., image/jpeg, application/pdf)
+    private long fileSize;
 
     @Enumerated(EnumType.STRING)
-    private MediaType mediaType;
+    private MediaType mediaType;  // Higher-level type category
 
-    //---------Add
-    private String filePath;
-    private String description;
+    private LocalDateTime uploadDate;
 
-    private String category; // e.g., "Programming", "Database", "DevOps"
-    private boolean verified;
+    @PrePersist
+    protected void onCreate() {
+        uploadDate = LocalDateTime.now();
+    }
 }

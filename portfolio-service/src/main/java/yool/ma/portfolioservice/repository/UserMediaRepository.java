@@ -8,8 +8,6 @@ import java.util.List;
 
 @Repository
 public interface UserMediaRepository extends JpaRepository<UserMedia, Long> {
-    List<UserMedia> findByProfileId(Long profileId);
-    List<UserMedia> findByCategory(String category);
-    List<UserMedia> findByMediaType(MediaType mediaType);
-    boolean existsByNameAndProfileId(String name, Long profileId);
+    List<UserMedia> findByProfile(Profile profile);
+    List<UserMedia> findByProfileAndMediaType(Profile profile, MediaType mediaType);
 }

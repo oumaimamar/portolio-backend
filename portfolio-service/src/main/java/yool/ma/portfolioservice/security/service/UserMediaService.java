@@ -2,83 +2,134 @@ package yool.ma.portfolioservice.security.service;
 
 import lombok.RequiredArgsConstructor;
 
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
-import yool.ma.portfolioservice.dto.UserMediaRequest;
-import yool.ma.portfolioservice.dto.UserMediaResponse;
+import org.springframework.util.StringUtils;
+import org.springframework.web.multipart.MultipartFile;
+
 import yool.ma.portfolioservice.model.*;
 import yool.ma.portfolioservice.repository.*;
+import yool.ma.portfolioservice.security.exception.FileStorageException;
+import yool.ma.portfolioservice.security.exception.ResourceNotFoundException;
 
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
-@RequiredArgsConstructor
+@Slf4j
 public class UserMediaService {
 
-    private final UserMediaRepository userMediaRepository;
-    private final ProfileRepository profileRepository;
+    @Autowired
+    private UserMediaRepository userMediaRepository;
 
-    public UserMediaResponse createUserMedia(Long profileId, UserMediaRequest request) {
+    @Autowired
+    private ProfileRepository profileRepository;
+
+    @Value("${file.upload-dir}")
+    private String uploadDir;
+
+    /**
+     * Add media to a project
+     */
+    public UserMedia addProjectMedia(Long profileId, MultipartFile file, MediaType mediaType) {
+        try {
+            Profile profile = profileRepository.findById(profileId)
+                    .orElseThrow(() -> new ResourceNotFoundException("Project not found with id: " + profileId));
+
+            // Create directory if it doesn't exist
+            String profileDirectory = uploadDir + File.separator + profileId;
+            File directory = new File(profileDirectory);
+            if (!directory.exists()) {
+                directory.mkdirs();
+            }
+
+            // Generate unique filename to avoid conflicts
+            String originalFilename = StringUtils.cleanPath(file.getOriginalFilename());
+            String fileName = System.currentTimeMillis() + "_" + originalFilename;
+            String filePath = profileDirectory + File.separator + fileName;
+
+            // Save file to disk
+            Path targetLocation = Paths.get(filePath);
+            Files.copy(file.getInputStream(), targetLocation, StandardCopyOption.REPLACE_EXISTING);
+
+            // Create and save media entity
+            UserMedia media = new UserMedia();
+            media.setProfile(profile);
+            media.setFileName(originalFilename);
+            media.setFilePath(filePath);
+            media.setFileType(file.getContentType());
+            media.setFileSize(file.getSize());
+            media.setMediaType(mediaType);
+
+            return userMediaRepository.save(media);
+        } catch (IOException ex) {
+            log.error("Could not store file: {}", ex.getMessage());
+            throw new FileStorageException("Could not store file. Please try again!", ex);
+        }
+    }
+
+    /**
+     * Get all media for a project
+     */
+    public List<UserMedia> getProjectMediaByProject(Long profileId) {
         Profile profile = profileRepository.findById(profileId)
-                .orElseThrow(() -> new RuntimeException("Profile not found with id: " + profileId));
+                .orElseThrow(() -> new ResourceNotFoundException("Project not found with id: " + profileId));
 
-        if (userMediaRepository.existsByNameAndProfileId(request.getName(), profileId)) {
-            throw new RuntimeException("Document already exists for this profile");
+        return userMediaRepository.findByProfile(profile);
+    }
+
+    /**
+     * Get media by project and media type
+     */
+    public List<UserMedia> getProjectMediaByType(Long profileId, MediaType mediaType) {
+        Profile profile = profileRepository.findById(profileId)
+                .orElseThrow(() -> new ResourceNotFoundException("Project not found with id: " + profileId));
+
+        return userMediaRepository.findByProfileAndMediaType(profile, mediaType);
+    }
+
+    /**
+     * Get file content by media id
+     */
+    public byte[] getProjectMediaContent(Long mediaId) {
+        UserMedia media = userMediaRepository.findById(mediaId)
+                .orElseThrow(() -> new ResourceNotFoundException("Media not found with id: " + mediaId));
+
+        try {
+            Path path = Paths.get(media.getFilePath());
+            return Files.readAllBytes(path);
+        } catch (IOException ex) {
+            log.error("Could not read file: {}", ex.getMessage());
+            throw new FileStorageException("Could not read file. Please try again!", ex);
         }
-
-        UserMedia userMedia = new UserMedia();
-        mapRequestToUserMedia(request, userMedia);
-        userMedia.setProfile(profile);
-
-        UserMedia savedUserMedia = userMediaRepository.save(userMedia);
-        return mapToResponse(savedUserMedia);
     }
 
-    public List<UserMediaResponse> getAllUserMediasByProfileId(Long profileId) {
-        return userMediaRepository.findByProfileId(profileId)
-                .stream()
-                .map(this::mapToResponse)
-                .collect(Collectors.toList());
-    }
+    /**
+     * Delete project media
+     */
+    public void deleteProjectMedia(Long mediaId) {
+        UserMedia media = userMediaRepository.findById(mediaId)
+                .orElseThrow(() -> new ResourceNotFoundException("Media not found with id: " + mediaId));
 
-    @Transactional
-    public UserMediaResponse updateUserMedia(Long id, UserMediaRequest request) {
-        UserMedia userMedia = userMediaRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Document not found with id: " + id));
+        try {
+            // Delete file from disk
+            Path path = Paths.get(media.getFilePath());
+            Files.deleteIfExists(path);
 
-        mapRequestToUserMedia(request, userMedia);
-        UserMedia updatedUserMedia = userMediaRepository.save(userMedia);
-        return mapToResponse(updatedUserMedia);
-    }
-
-    public void deleteUserMedia(Long id) {
-        if (!userMediaRepository.existsById(id)) {
-            throw new RuntimeException("Document not found with id: " + id);
+            // Delete from database
+            userMediaRepository.delete(media);
+        } catch (IOException ex) {
+            log.error("Could not delete file: {}", ex.getMessage());
+            throw new FileStorageException("Could not delete file. Please try again!", ex);
         }
-        userMediaRepository.deleteById(id);
-    }
-
-    private UserMediaResponse mapToResponse(UserMedia userMedia) {
-        UserMediaResponse response = new UserMediaResponse();
-        response.setId(userMedia.getId());
-        response.setName(userMedia.getName());
-        response.setMediaType(userMedia.getMediaType());
-        response.setFilePath(userMedia.getFilePath());
-        response.setDescription(userMedia.getDescription());
-        response.setCategory(userMedia.getCategory());
-        response.setVerified(userMedia.isVerified());
-        return response;
-    }
-
-    private void mapRequestToUserMedia(UserMediaRequest request, UserMedia userMedia) {
-        userMedia.setName(request.getName());
-        userMedia.setMediaType(request.getMediaType());
-        userMedia.setFilePath(request.getFilePath());
-        userMedia.setDescription(request.getDescription());
-        userMedia.setCategory(request.getCategory());
-        userMedia.setVerified(request.isVerified());
     }
 }

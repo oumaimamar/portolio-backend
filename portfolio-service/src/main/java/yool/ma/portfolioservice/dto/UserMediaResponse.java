@@ -9,12 +9,9 @@ import java.time.LocalDateTime;
 @Data
 public class UserMediaResponse {
     private Long id;
-    private String name;
-    private MediaType mediaType;
-
+    private Long profileId;
+    private String fileName;
     private String filePath;
-    private String description;
-
-    private String category;
-    private boolean verified;
+    private String fileType;
+    private long fileSize;
 }

@@ -2,55 +2,81 @@ package yool.ma.portfolioservice.controller;
 
 import lombok.RequiredArgsConstructor;
 
-import org.springframework.http.HttpStatus;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.ByteArrayResource;
+import org.springframework.core.io.Resource;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 
 import org.springframework.web.bind.annotation.*;
-import yool.ma.portfolioservice.dto.UserMediaRequest;
-import yool.ma.portfolioservice.dto.UserMediaResponse;
+import org.springframework.web.multipart.MultipartFile;
+
+import yool.ma.portfolioservice.model.UserMedia;
 import yool.ma.portfolioservice.security.service.UserMediaService;
 
 
 import java.util.List;
 
-@CrossOrigin(origins = "*", maxAge = 3600)
 @RestController
-@RequestMapping("/api/profiles/{profileId}/user-media")
-@RequiredArgsConstructor
+@CrossOrigin(origins = "*", maxAge = 3600)
+@RequestMapping("/api/user-media")
 public class UserMediaController {
 
-    private final UserMediaService userMediaService;
+    @Autowired
+    private UserMediaService userMediaService;
 
-    @PostMapping
-    public ResponseEntity<UserMediaResponse> createUserMedia(
+    @PostMapping("/{profileId}/upload")
+//    @PreAuthorize("hasRole('APPRENANT') or hasRole('RESPONSABLE')")
+    public ResponseEntity<UserMedia> uploadFile(
             @PathVariable Long profileId,
-            @RequestBody UserMediaRequest request) {
-        UserMediaResponse response = userMediaService.createUserMedia(profileId, request);
-        return new ResponseEntity<>(response, HttpStatus.CREATED);
+            @RequestParam("file") MultipartFile file,
+            @RequestParam("mediaType")yool.ma.portfolioservice.model.MediaType mediaType) {
+
+        UserMedia media = userMediaService.addProjectMedia(profileId, file, mediaType);
+        return ResponseEntity.ok(media);
     }
 
-    @GetMapping
-    public ResponseEntity<List<UserMediaResponse>> getAllUserMediasByProfileId(
-            @PathVariable Long profileId) {
-        List<UserMediaResponse> responses = userMediaService.getAllUserMediasByProfileId(profileId);
-        return ResponseEntity.ok(responses);
+    @GetMapping("/{profileId}")
+    public ResponseEntity<List<UserMedia>> getUserMedia(@PathVariable Long profileId) {
+        List<UserMedia> mediaList = userMediaService.getProjectMediaByProject(profileId);
+        return ResponseEntity.ok(mediaList);
     }
 
-    @PutMapping("/{userMediaId}")
-    public ResponseEntity<UserMediaResponse> updateUserMedia(
+    @GetMapping("/{profileId}/type/{mediaType}")
+    public ResponseEntity<List<UserMedia>> getProjectMediaByType(
             @PathVariable Long profileId,
-            @PathVariable Long userMediaId,
-            @RequestBody UserMediaRequest request) {
-        UserMediaResponse response = userMediaService.updateUserMedia(userMediaId, request);
-        return ResponseEntity.ok(response);
+            @PathVariable yool.ma.portfolioservice.model.MediaType mediaType) {
+
+        List<UserMedia> mediaList = userMediaService.getProjectMediaByType(profileId, mediaType);
+        return ResponseEntity.ok(mediaList);
     }
 
-    @DeleteMapping("/{userMediaId}")
-    public ResponseEntity<Void> deleteUserMedia(
-            @PathVariable Long profileId,
-            @PathVariable Long userMediaId) {
-        userMediaService.deleteUserMedia(userMediaId);
-        return ResponseEntity.noContent().build();
+    @GetMapping("/download/{mediaId}")
+    public ResponseEntity<Resource> downloadFile(@PathVariable Long mediaId) {
+        UserMedia media = userMediaService.getProjectMediaByProject(mediaId).stream()
+                .filter(m -> m.getId().equals(mediaId))
+                .findFirst()
+                .orElseThrow(() -> new IllegalArgumentException("Media not found"));
+
+        byte[] fileContent = userMediaService.getProjectMediaContent(mediaId);
+
+        ByteArrayResource resource = new ByteArrayResource(fileContent);
+
+        return ResponseEntity.ok()
+                .contentType(org.springframework.http.MediaType.parseMediaType(media.getFileType()))
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + media.getFileName() + "\"")
+                .body(resource);
+    }
+
+    @DeleteMapping("/{mediaId}")
+    public ResponseEntity<?> deleteMedia(@PathVariable Long mediaId) {
+        userMediaService.deleteProjectMedia(mediaId);
+        return ResponseEntity.ok().build();
+    }
+
+    @GetMapping("/media-types")
+    public ResponseEntity<yool.ma.portfolioservice.model.MediaType[]> getMediaTypes() {
+        return ResponseEntity.ok(yool.ma.portfolioservice.model.MediaType.values());
     }
 }
 
