@@ -141,4 +141,28 @@ public class UserMediaService {
             throw new FileStorageException("Could not delete file. Please try again!", ex);
         }
     }
+
+    /**
+     *ADD FOR FILTER AND SEARCH
+     * */
+
+    public List<UserMedia> getProjectMediaByCategory(Long profileId, String category) {
+        Profile profile = profileRepository.findById(profileId)
+                .orElseThrow(() -> new ResourceNotFoundException("Project not found with id: " + profileId));
+        return userMediaRepository.findByProfileAndCategory(profile, category);
+    }
+
+    public List<UserMedia> getProjectMediaByTypeAndCategory(Long profileId, MediaType mediaType, String category) {
+        Profile profile = profileRepository.findById(profileId)
+                .orElseThrow(() -> new ResourceNotFoundException("Project not found with id: " + profileId));
+        return userMediaRepository.findByProfileAndMediaTypeAndCategory(profile, mediaType, category);
+    }
+
+    public List<UserMedia> searchProjectMediaByTitle(Long profileId, String title) {
+        Profile profile = profileRepository.findById(profileId)
+                .orElseThrow(() -> new ResourceNotFoundException("Project not found with id: " + profileId));
+        return userMediaRepository.findByProfileAndTitreContainingIgnoreCase(profile, title);
+    }
+
+
 }

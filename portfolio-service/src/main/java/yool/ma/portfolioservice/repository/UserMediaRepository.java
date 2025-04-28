@@ -10,4 +10,11 @@ import java.util.List;
 public interface UserMediaRepository extends JpaRepository<UserMedia, Long> {
     List<UserMedia> findByProfile(Profile profile);
     List<UserMedia> findByProfileAndMediaType(Profile profile, MediaType mediaType);
+
+
+    // Add these new methods for filtering
+    List<UserMedia> findByProfileAndCategory(Profile profile, String category);
+    List<UserMedia> findByProfileAndMediaTypeAndCategory(Profile profile, MediaType mediaType, String category);
+    List<UserMedia> findByProfileAndTitreContainingIgnoreCase(Profile profile, String titre);
+
 }

@@ -11,6 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import yool.ma.portfolioservice.model.MediaType;
 import yool.ma.portfolioservice.model.UserMedia;
 import yool.ma.portfolioservice.security.service.UserMediaService;
 
@@ -82,5 +83,36 @@ public class UserMediaController {
     public ResponseEntity<yool.ma.portfolioservice.model.MediaType[]> getMediaTypes() {
         return ResponseEntity.ok(yool.ma.portfolioservice.model.MediaType.values());
     }
+
+
+    /**
+     *ADD FOR FILTER AND SEARCH
+     * */
+
+    @GetMapping("/{profileId}/category/{category}")
+    public ResponseEntity<List<UserMedia>> getProjectMediaByCategory(
+            @PathVariable Long profileId,
+            @PathVariable String category) {
+        List<UserMedia> mediaList = userMediaService.getProjectMediaByCategory(profileId, category);
+        return ResponseEntity.ok(mediaList);
+    }
+
+    @GetMapping("/{profileId}/type/{mediaType}/category/{category}")
+    public ResponseEntity<List<UserMedia>> getProjectMediaByTypeAndCategory(
+            @PathVariable Long profileId,
+            @PathVariable MediaType mediaType,
+            @PathVariable String category) {
+        List<UserMedia> mediaList = userMediaService.getProjectMediaByTypeAndCategory(profileId, mediaType, category);
+        return ResponseEntity.ok(mediaList);
+    }
+
+    @GetMapping("/{profileId}/search")
+    public ResponseEntity<List<UserMedia>> searchProjectMediaByTitle(
+            @PathVariable Long profileId,
+            @RequestParam String title) {
+        List<UserMedia> mediaList = userMediaService.searchProjectMediaByTitle(profileId, title);
+        return ResponseEntity.ok(mediaList);
+    }
+
 }
 
