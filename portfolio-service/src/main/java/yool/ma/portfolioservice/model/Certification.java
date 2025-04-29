@@ -1,5 +1,6 @@
 package yool.ma.portfolioservice.model;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -20,6 +21,7 @@ public class Certification {
 
     @ManyToOne
     @JoinColumn(name = "profile_id")
+    @JsonBackReference
     private Profile profile;
 
     @Column(nullable = false)

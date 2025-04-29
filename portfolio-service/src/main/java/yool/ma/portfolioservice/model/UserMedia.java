@@ -1,5 +1,6 @@
 package yool.ma.portfolioservice.model;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -22,7 +23,7 @@ import java.time.LocalDateTime;
 
     @ManyToOne
     @JoinColumn(name = "project_id")
-    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
+//    @JsonBackReference
     private Profile profile;
 
     private String fileName;
