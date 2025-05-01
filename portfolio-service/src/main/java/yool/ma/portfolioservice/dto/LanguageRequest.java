@@ -1,8 +1,8 @@
 package yool.ma.portfolioservice.dto;
 
 import lombok.Data;
-import yool.ma.portfolioservice.model.CertificationType;
-import yool.ma.portfolioservice.model.ProficiencyLevel;
+import yool.ma.portfolioservice.ennum.CertificationType;
+import yool.ma.portfolioservice.ennum.ProficiencyLevel;
 
 @Data
 public class LanguageRequest {

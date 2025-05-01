@@ -4,7 +4,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
-import yool.ma.portfolioservice.model.MediaType;
+import yool.ma.portfolioservice.ennum.MediaType;
 import yool.ma.portfolioservice.security.exception.FileStorageException;
 
 import java.io.IOException;

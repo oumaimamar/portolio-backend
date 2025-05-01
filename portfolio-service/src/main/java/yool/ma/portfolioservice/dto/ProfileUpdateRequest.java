@@ -7,6 +7,8 @@ import java.util.List;
 public class ProfileUpdateRequest {
     private String firstName;
     private String lastName;
+    private String email;
+
     private String phoneNumber;
     private String diploma;
     private String profilePicture;

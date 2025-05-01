@@ -1,10 +1,11 @@
+
 package yool.ma.portfolioservice.dto.auth;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
-import yool.ma.portfolioservice.model.Role;
+import yool.ma.portfolioservice.ennum.Role;
 
 @Data
 public class RegisterRequest {

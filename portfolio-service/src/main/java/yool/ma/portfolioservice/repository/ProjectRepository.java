@@ -3,7 +3,7 @@ package yool.ma.portfolioservice.repository;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 import yool.ma.portfolioservice.model.Project;
-import yool.ma.portfolioservice.model.ProjectStatus;
+import yool.ma.portfolioservice.ennum.ProjectStatus;
 
 import java.util.List;
 

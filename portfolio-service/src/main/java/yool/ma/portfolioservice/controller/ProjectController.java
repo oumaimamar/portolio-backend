@@ -6,7 +6,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import yool.ma.portfolioservice.dto.ProjectRequest;
 import yool.ma.portfolioservice.dto.ProjectResponse;
-import yool.ma.portfolioservice.model.ProjectStatus;
+import yool.ma.portfolioservice.ennum.ProjectStatus;
 import yool.ma.portfolioservice.security.service.ProjectService;
 
 import java.util.List;

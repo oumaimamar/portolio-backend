@@ -2,6 +2,7 @@ package yool.ma.portfolioservice.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import yool.ma.portfolioservice.dto.ProfileUpdateRequest;
@@ -12,6 +13,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.util.UUID;
 
 @CrossOrigin(origins = "*", maxAge = 3600)
@@ -47,18 +49,22 @@ public class ProfileController {
             @RequestParam("file") MultipartFile file) {
 
         try {
+            // Define the upload directory
+            String uploadDir = System.getProperty("user.dir") + "/uploads/profile-pictures/";
+
             // Create upload directory if it doesn't exist
-            Files.createDirectories(Paths.get(UPLOAD_DIR));
+            Files.createDirectories(Paths.get(uploadDir));
 
             // Generate unique filename
-            String fileName = UUID.randomUUID().toString() + "_" + file.getOriginalFilename();
-            Path filePath = Paths.get(UPLOAD_DIR + fileName);
+            String fileName = UUID.randomUUID().toString() + "_" + StringUtils.cleanPath(file.getOriginalFilename());
+            Path filePath = Paths.get(uploadDir + fileName);
 
             // Save file
-            Files.copy(file.getInputStream(), filePath);
+            Files.copy(file.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
 
-            // Return web-accessible path instead of filesystem path
+            // The URL path that will be used by the frontend to access the image
             String webPath = "/uploads/profile-pictures/" + fileName;
+
             Profile updatedProfile = profileService.updateProfilePicture(userId, webPath);
             return ResponseEntity.ok(updatedProfile);
 
@@ -66,4 +72,4 @@ public class ProfileController {
             throw new RuntimeException("Failed to upload profile picture", e);
         }
     }
-}
+    }

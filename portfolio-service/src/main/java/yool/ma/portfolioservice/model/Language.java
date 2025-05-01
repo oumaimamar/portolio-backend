@@ -1,10 +1,11 @@
 package yool.ma.portfolioservice.model;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
+import yool.ma.portfolioservice.ennum.CertificationType;
+import yool.ma.portfolioservice.ennum.ProficiencyLevel;
 
 @Entity
 @Table(name = "languages")

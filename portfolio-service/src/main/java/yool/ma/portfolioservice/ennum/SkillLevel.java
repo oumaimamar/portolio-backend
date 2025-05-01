@@ -1,4 +1,4 @@
-package yool.ma.portfolioservice.model;
+package yool.ma.portfolioservice.ennum;
 
 public enum SkillLevel {
     BEGINNER,

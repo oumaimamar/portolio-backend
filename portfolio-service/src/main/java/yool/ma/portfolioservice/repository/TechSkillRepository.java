@@ -1,6 +1,6 @@
 package yool.ma.portfolioservice.repository;
 
-import yool.ma.portfolioservice.model.SkillLevel;
+import yool.ma.portfolioservice.ennum.SkillLevel;
 import yool.ma.portfolioservice.model.TechSkill;
 import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.List;

@@ -1,7 +1,7 @@
 package yool.ma.portfolioservice.repository;
 
 
-import yool.ma.portfolioservice.model.EmploymentType;
+import yool.ma.portfolioservice.ennum.EmploymentType;
 import yool.ma.portfolioservice.model.Experience;
 import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.List;

@@ -1,16 +1,12 @@
 package yool.ma.portfolioservice.security.service;
 
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
-import yool.ma.portfolioservice.dto.ProjectMediaRequest;
-import yool.ma.portfolioservice.dto.ProjectMediaResponse;
-import yool.ma.portfolioservice.model.MediaType;
+import yool.ma.portfolioservice.ennum.MediaType;
 import yool.ma.portfolioservice.model.Project;
 import yool.ma.portfolioservice.model.ProjectMedia;
 import yool.ma.portfolioservice.repository.ProjectMediaRepository;
@@ -25,8 +21,6 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Service
 @Slf4j

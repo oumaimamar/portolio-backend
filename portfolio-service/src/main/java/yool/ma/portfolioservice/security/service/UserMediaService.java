@@ -1,7 +1,5 @@
 package yool.ma.portfolioservice.security.service;
 
-import lombok.RequiredArgsConstructor;
-
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -10,6 +8,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
+import yool.ma.portfolioservice.ennum.MediaType;
 import yool.ma.portfolioservice.model.*;
 import yool.ma.portfolioservice.repository.*;
 import yool.ma.portfolioservice.security.exception.FileStorageException;

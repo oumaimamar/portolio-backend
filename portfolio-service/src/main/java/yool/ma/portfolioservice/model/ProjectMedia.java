@@ -1,12 +1,12 @@
 package yool.ma.portfolioservice.model;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import yool.ma.portfolioservice.ennum.MediaType;
 
 import java.time.LocalDateTime;
 
@@ -24,8 +24,7 @@ public class ProjectMedia {
 
     @ManyToOne
     @JoinColumn(name = "project_id")
-//    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
-    @JsonBackReference
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private Project project;
 
     private String fileName;

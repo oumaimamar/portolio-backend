@@ -1,7 +1,7 @@
 package yool.ma.portfolioservice.dto;
 
 import lombok.Data;
-import yool.ma.portfolioservice.model.EmploymentType;
+import yool.ma.portfolioservice.ennum.EmploymentType;
 import java.time.LocalDate;
 
 @Data

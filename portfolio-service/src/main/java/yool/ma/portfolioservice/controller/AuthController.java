@@ -1,3 +1,4 @@
+
 package yool.ma.portfolioservice.controller;
 
 import jakarta.validation.Valid;
@@ -25,19 +26,6 @@ public class AuthController {
 
     @PostMapping("/register")
     public ResponseEntity<?> registerUser(@Valid @RequestBody RegisterRequest registerRequest) {
-        if (authService.existsByUsername(registerRequest.getUsername())) {
-            return ResponseEntity
-                    .badRequest()
-                    .body(new MessageResponse("Error: Username is already taken!"));
-        }
-
-        if (authService.existsByEmail(registerRequest.getEmail())) {
-            return ResponseEntity
-                    .badRequest()
-                    .body(new MessageResponse("Error: Email is already in use!"));
-        }
-
-        authService.registerUser(registerRequest);
-        return ResponseEntity.ok(new MessageResponse("User registered successfully!"));
+        return authService.registerUser(registerRequest);
     }
 }

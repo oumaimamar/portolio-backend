@@ -2,7 +2,7 @@ package yool.ma.portfolioservice.repository;
 
 import yool.ma.portfolioservice.model.Language;
 import org.springframework.data.jpa.repository.JpaRepository;
-import yool.ma.portfolioservice.model.ProficiencyLevel;
+import yool.ma.portfolioservice.ennum.ProficiencyLevel;
 
 import java.util.List;
 

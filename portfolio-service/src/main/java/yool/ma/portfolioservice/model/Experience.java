@@ -4,6 +4,8 @@ import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
+import yool.ma.portfolioservice.ennum.EmploymentType;
+
 import java.time.LocalDate;
 
 @Entity

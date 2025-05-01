@@ -73,7 +73,9 @@ public class WebSecurityConfig {
                                 .requestMatchers("/api/feedback/reviewer/**").permitAll()
                                 .requestMatchers("/api/feedback/**").permitAll()
 
+                                .requestMatchers("/uploads/profile-pictures/**").permitAll()
                                 .requestMatchers("/uploads/**").permitAll()
+
 
                                 .requestMatchers("/api/project-media/download/**").permitAll() // Allow downloading files without authentication
                                 .requestMatchers("/api/project-media/**").permitAll() // Allow downloading files without authentication

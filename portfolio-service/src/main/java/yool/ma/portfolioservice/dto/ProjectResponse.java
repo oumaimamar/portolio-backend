@@ -1,7 +1,7 @@
 package yool.ma.portfolioservice.dto;
 
 import lombok.Data;
-import yool.ma.portfolioservice.model.ProjectStatus;
+import yool.ma.portfolioservice.ennum.ProjectStatus;
 
 import java.time.LocalDate;
 import java.util.Set;

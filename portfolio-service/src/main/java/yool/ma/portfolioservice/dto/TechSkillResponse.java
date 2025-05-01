@@ -1,7 +1,7 @@
 package yool.ma.portfolioservice.dto;
 
 import lombok.Data;
-import yool.ma.portfolioservice.model.SkillLevel;
+import yool.ma.portfolioservice.ennum.SkillLevel;
 
 @Data
 public class TechSkillResponse {

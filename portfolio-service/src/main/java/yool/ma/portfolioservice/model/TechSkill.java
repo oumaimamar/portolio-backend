@@ -1,10 +1,10 @@
 package yool.ma.portfolioservice.model;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
+import yool.ma.portfolioservice.ennum.SkillLevel;
 
 @Entity
 @Table(name = "tech_skills")

@@ -1,7 +1,5 @@
 package yool.ma.portfolioservice.controller;
 
-import lombok.RequiredArgsConstructor;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.Resource;
@@ -11,7 +9,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import yool.ma.portfolioservice.model.MediaType;
+import yool.ma.portfolioservice.ennum.MediaType;
 import yool.ma.portfolioservice.model.UserMedia;
 import yool.ma.portfolioservice.security.service.UserMediaService;
 
@@ -31,7 +29,7 @@ public class UserMediaController {
     public ResponseEntity<UserMedia> uploadFile(
             @PathVariable Long profileId,
             @RequestParam("file") MultipartFile file,
-            @RequestParam("mediaType")yool.ma.portfolioservice.model.MediaType mediaType,
+            @RequestParam("mediaType") MediaType mediaType,
             @RequestParam("titre") String titre,
             @RequestParam("description") String description,
             @RequestParam("category") String category,
@@ -50,7 +48,7 @@ public class UserMediaController {
     @GetMapping("/{profileId}/type/{mediaType}")
     public ResponseEntity<List<UserMedia>> getProjectMediaByType(
             @PathVariable Long profileId,
-            @PathVariable yool.ma.portfolioservice.model.MediaType mediaType) {
+            @PathVariable MediaType mediaType) {
 
         List<UserMedia> mediaList = userMediaService.getProjectMediaByType(profileId, mediaType);
         return ResponseEntity.ok(mediaList);
@@ -80,8 +78,8 @@ public class UserMediaController {
     }
 
     @GetMapping("/media-types")
-    public ResponseEntity<yool.ma.portfolioservice.model.MediaType[]> getMediaTypes() {
-        return ResponseEntity.ok(yool.ma.portfolioservice.model.MediaType.values());
+    public ResponseEntity<MediaType[]> getMediaTypes() {
+        return ResponseEntity.ok(MediaType.values());
     }
 
 

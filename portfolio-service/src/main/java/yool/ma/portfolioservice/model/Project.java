@@ -1,12 +1,12 @@
 package yool.ma.portfolioservice.model;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import yool.ma.portfolioservice.ennum.ProjectStatus;
 
 import java.time.LocalDate;
 import java.util.HashSet;
@@ -46,7 +46,7 @@ public class Project {
     private Set<String> skills = new HashSet<>();
 
     @OneToMany(mappedBy = "project", cascade = CascadeType.ALL, orphanRemoval = true)
-    @JsonManagedReference
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private Set<ProjectMedia> mediaFiles = new HashSet<>();
 
     @OneToMany(mappedBy = "project", cascade = CascadeType.ALL, orphanRemoval = true)

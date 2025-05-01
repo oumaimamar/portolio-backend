@@ -4,14 +4,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.multipart.MultipartFile;
-import yool.ma.portfolioservice.dto.ProjectMediaRequest;
-import yool.ma.portfolioservice.dto.ProjectMediaResponse;
+import yool.ma.portfolioservice.ennum.MediaType;
 import yool.ma.portfolioservice.model.ProjectMedia;
 import yool.ma.portfolioservice.security.service.ProjectMediaService;
-import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -30,7 +26,7 @@ public class ProjectMediaController {
     public ResponseEntity<ProjectMedia> uploadFile(
             @PathVariable Long projectId,
             @RequestParam("file") MultipartFile file,
-            @RequestParam("mediaType")yool.ma.portfolioservice.model.MediaType mediaType) {
+            @RequestParam("mediaType") MediaType mediaType) {
 
         ProjectMedia media = projectMediaService.addProjectMedia(projectId, file, mediaType);
         return ResponseEntity.ok(media);
@@ -45,7 +41,7 @@ public class ProjectMediaController {
     @GetMapping("/{projectId}/type/{mediaType}")
     public ResponseEntity<List<ProjectMedia>> getProjectMediaByType(
             @PathVariable Long projectId,
-            @PathVariable yool.ma.portfolioservice.model.MediaType mediaType) {
+            @PathVariable MediaType mediaType) {
 
         List<ProjectMedia> mediaList = projectMediaService.getProjectMediaByType(projectId, mediaType);
         return ResponseEntity.ok(mediaList);
@@ -75,7 +71,7 @@ public class ProjectMediaController {
     }
 
     @GetMapping("/media-types")
-    public ResponseEntity<yool.ma.portfolioservice.model.MediaType[]> getMediaTypes() {
-        return ResponseEntity.ok(yool.ma.portfolioservice.model.MediaType.values());
+    public ResponseEntity<MediaType[]> getMediaTypes() {
+        return ResponseEntity.ok(MediaType.values());
     }
 }

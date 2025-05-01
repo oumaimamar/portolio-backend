@@ -7,7 +7,7 @@ import yool.ma.portfolioservice.dto.ProjectRequest;
 import yool.ma.portfolioservice.dto.ProjectResponse;
 import yool.ma.portfolioservice.model.Profile;
 import yool.ma.portfolioservice.model.Project;
-import yool.ma.portfolioservice.model.ProjectStatus;
+import yool.ma.portfolioservice.ennum.ProjectStatus;
 import yool.ma.portfolioservice.repository.ProfileRepository;
 import yool.ma.portfolioservice.repository.ProjectRepository;
 

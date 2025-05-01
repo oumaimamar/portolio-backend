@@ -1,7 +1,7 @@
 package yool.ma.portfolioservice.repository;
 
 import org.springframework.stereotype.Repository;
-import yool.ma.portfolioservice.model.MediaType;
+import yool.ma.portfolioservice.ennum.MediaType;
 import yool.ma.portfolioservice.model.Project;
 import yool.ma.portfolioservice.model.ProjectMedia;
 import org.springframework.data.jpa.repository.JpaRepository;
