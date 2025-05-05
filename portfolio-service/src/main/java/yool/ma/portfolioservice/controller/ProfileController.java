@@ -1,8 +1,10 @@
 package yool.ma.portfolioservice.controller;
 
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.StringUtils;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import yool.ma.portfolioservice.dto.ProfileUpdateRequest;
@@ -41,9 +43,18 @@ public class ProfileController {
     }
 
     @PutMapping("/{userId}")
-    public ResponseEntity<Profile> updateProfile(
+    public ResponseEntity<?> updateProfile(
             @PathVariable Long userId,
-            @RequestBody ProfileUpdateRequest profileUpdateRequest) {
+            @Valid @RequestBody ProfileUpdateRequest profileUpdateRequest,
+            BindingResult bindingResult) {
+
+        if (bindingResult.hasErrors()) {
+            Map<String, String> errors = new HashMap<>();
+            bindingResult.getFieldErrors().forEach(error ->
+                    errors.put(error.getField(), error.getDefaultMessage()));
+            return ResponseEntity.badRequest().body(errors);
+        }
+
         Profile updatedProfile = profileService.updateProfile(userId, profileUpdateRequest);
         return ResponseEntity.ok(updatedProfile);
     }

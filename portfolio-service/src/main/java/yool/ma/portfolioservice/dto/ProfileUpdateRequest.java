@@ -4,6 +4,7 @@ import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
+import yool.ma.portfolioservice.security.exception.ValidDescription;
 
 import java.util.List;
 
@@ -22,6 +23,7 @@ public class ProfileUpdateRequest {
     private String profilePicture;
 
     @Size(max = 500)
+    @ValidDescription
     private String bio;
 
     private List<String> socialLinks;
